@@ -8,9 +8,11 @@ import {
   ScrollRestoration,
 } from '@remix-run/react'
 import stylesheet from '~/tailwind.css'
+import logoAssetUrl from '~/assets/logo.svg'
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet },
+  { rel: 'icon', type: 'image/svg+xml', href: logoAssetUrl },
 ]
 
 export default function App() {
