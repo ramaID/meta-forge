@@ -1,0 +1,56 @@
+version: '3'
+services:
+  frontend:
+    image: node:20
+    volumes:
+      - nodemodules:/usr/src/service/node_modules
+      - ./frontend:/usr/src/service
+    working_dir: /usr/src/service
+    command: bash -c "npm install && npm run dev"
+    ports:
+      - '${FORWARD_FE_PORT:-3000}:3000'
+      - '${FORWARD_WS_PORT:-3001}:3001'
+    networks:
+      - meta-forge
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - BE_URL=http://backend:${FORWARD_BE_PORT:-8000}
+  backend:
+    image: ramageek/php:beta-8.1-sprint
+    volumes:
+      - ./backend:/var/www/html
+    working_dir: /var/www/html
+    ports:
+      - '${FORWARD_BE_PORT:-8000}:80'
+    networks:
+      - meta-forge
+    depends_on:
+      - mariadb
+  mariadb:
+    image: 'mariadb:10'
+    volumes:
+      # mapping ke direktori backend/storage/app/mariadb agar database tidak hilang saat container dihapus
+      - ./backend/storage/app/mariadb:/var/lib/mysql
+      # mapping ke berkas create-testing-database.sh agar database testing dapat dibuat saat container pertama kali dijalankan
+      - ./backend/database/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh
+    ports:
+      - '${FORWARD_DB_PORT:-3306}:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_USER: '${DB_USERNAME}'
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    networks:
+      - meta-forge
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-p${DB_PASSWORD}']
+      retries: 3
+      timeout: 5s
+networks:
+  meta-forge:
+    driver: bridge
+volumes:
+  nodemodules:
+    external: true
