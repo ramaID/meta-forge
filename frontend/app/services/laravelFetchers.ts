@@ -11,63 +11,61 @@ export const CSRF_COOKIE = 'XSRF-TOKEN',
 
 export default async function laraFetch<T>(
   path: RequestInfo,
-  { ...options }: laraFetchOptions,
+  { method = 'get', body: requestBody }: laraFetchOptions,
   request?: Request
 ): Promise<T> {
   const { BE_URL } = process.env
+  const isMutation = ['post', 'put', 'patch', 'delete'].includes(
+    method.toLowerCase()
+  )
 
-  let body = undefined,
-    method = options.method?.toLowerCase() || 'get',
-    isMutation = ['post', 'put', 'patch', 'delete'].includes(method),
-    Cookie = request?.headers.get('Cookie'),
-    token = null
+  let token: string | null = null
+  let cookieHeader = request?.headers.get('Cookie')
 
-  method = method.toUpperCase()
-
-  if (Cookie) {
-    let cookies = await authCookie.parse(Cookie)
+  if (cookieHeader) {
+    const cookies = await authCookie.parse(cookieHeader)
 
     token = cookies[CSRF_HEADER]
-    Cookie = cookies.Cookie
+    cookieHeader = cookies.Cookie
   }
 
-  if (isMutation && !Cookie) {
-    let responseCsrf = await fetch(`${BE_URL}/sanctum/csrf-cookie`, {
-        method: 'GET',
-      }),
-      cookies = String(responseCsrf.headers.get('set-cookie')),
-      laravelCookies = await parseCookie(cookies)
+  if (isMutation && !cookieHeader) {
+    const responseCsrf = await fetch(`${BE_URL}/sanctum/csrf-cookie`, {
+      method: 'GET',
+    })
+    const cookies = String(responseCsrf.headers.get('set-cookie'))
+    const laravelCookies = await parseCookie(cookies)
 
     token = laravelCookies.XSRFToken
-    Cookie = [
-      `laravel_session=${laravelCookies.laravelSession}`,
-      `${CSRF_COOKIE}=${token}`,
-    ].join(';')
+    cookieHeader = `laravel_session=${laravelCookies.laravelSession}; ${CSRF_COOKIE}=${token}`
   }
 
-  // TODO: makes typescript happy about this headers variable
-  let headers: any = {
-    ...(token && {
-      Cookie,
-      [CSRF_HEADER]: token,
-    }),
+  const headers = new Headers({
     accept: 'application/json',
     Referer: 'http://localhost:3000',
+  })
+
+  if (token && cookieHeader) {
+    headers.set('Cookie', cookieHeader)
+    headers.set(CSRF_HEADER, token)
   }
 
-  if (options?.body instanceof FormData) {
-    headers = {
-      ...headers,
-      'Content-Type': 'application/json',
-    }
-    body = JSON.stringify(Object.fromEntries(options.body))
+  let body = undefined
+
+  if (requestBody instanceof FormData) {
+    headers.set('Content-Type', 'application/json')
+    body = JSON.stringify(Object.fromEntries(requestBody))
   }
 
-  let response = await fetch(`${BE_URL}${path}`, {
+  const response = await fetch(`${BE_URL}${path}`, {
     headers,
-    method,
+    method: method.toUpperCase(),
     body,
   })
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`)
+  }
 
   return response as T
 }
@@ -76,38 +74,32 @@ export async function laraReq<T, K>(
   fetchable: Promise<T>,
   onSuccess?: (param?: Response) => K,
   onUnauthorized?: (param?: Response) => K
-): Promise<{
-  data: T
-  errors: Record<string, string[]> | null
-}> {
-  let data = null,
-    errors = null,
-    response = await fetchable
+): Promise<{ data: T | null; errors: Record<string, string[]> | null }> {
+  const response = await fetchable
 
   if (!(response instanceof Response)) {
     throw new Error('Something went wrong')
   }
 
-  let { status } = response
-
-  if (status === 419) {
+  if (response.status === 419) {
     throw redirect('/login', {
       headers: {
-        'Set-Cookie': await authCookie.serialize('', {
-          maxAge: 0,
-        }),
+        'Set-Cookie': await authCookie.serialize('', { maxAge: 0 }),
       },
     })
   }
 
-  if (status === 401) {
+  if (response.status === 401) {
     await onUnauthorized?.(response)
   }
 
-  if ([422, 200].includes(status)) {
-    let json = await response.json()
+  let data: T | null = null
+  let errors: Record<string, string[]> | null = null
 
-    if (status === 422) {
+  if ([422, 200].includes(response.status)) {
+    const json = await response.json()
+
+    if (response.status === 422) {
       errors = json.errors
     } else {
       data = json
