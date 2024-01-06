@@ -13,7 +13,7 @@ services:
       - meta-forge
     environment:
       - CHOKIDAR_USEPOLLING=true
-      - BE_URL=http://backend:${FORWARD_BE_PORT:-8000}
+      - BE_URL=http://backend
     depends_on:
       - backend
   backend:
