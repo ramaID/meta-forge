@@ -3,7 +3,8 @@ import { Dialog } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { ChevronRightIcon } from '@heroicons/react/20/solid'
 import { MetaFunction } from '@remix-run/node'
-import logoAssetUrl from '~/assets/logo.svg'
+import { Link } from '@remix-run/react'
+import { logoUrl } from '~/utils'
 
 export const meta: MetaFunction = () => {
   return [
@@ -23,7 +24,7 @@ export default function Example() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
-    <div className="bg-white">
+    <div className="bg-white min-h-full">
       {/* Header */}
       <header className="absolute inset-x-0 top-0 z-50">
         <nav
@@ -33,7 +34,7 @@ export default function Example() {
           <div className="flex lg:flex-1">
             <a href="#" className="-m-1.5 p-1.5">
               <span className="sr-only">Your Company</span>
-              <img className="h-8 w-auto" src={logoAssetUrl} alt="" />
+              <img className="h-8 w-auto" src={logoUrl} alt="" />
             </a>
           </div>
           <div className="flex lg:hidden">
@@ -58,12 +59,12 @@ export default function Example() {
             ))}
           </div>
           <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-            <a
-              href="#"
+            <Link
+              to="/login"
               className="text-sm font-semibold leading-6 text-gray-900"
             >
               Log in <span aria-hidden="true">&rarr;</span>
-            </a>
+            </Link>
           </div>
         </nav>
         <Dialog
@@ -77,7 +78,7 @@ export default function Example() {
             <div className="flex items-center justify-between">
               <a href="#" className="-m-1.5 p-1.5">
                 <span className="sr-only">Your Company</span>
-                <img className="h-8 w-auto" src={logoAssetUrl} alt="" />
+                <img className="h-8 w-auto" src={logoUrl} alt="" />
               </a>
               <button
                 type="button"
@@ -102,12 +103,12 @@ export default function Example() {
                   ))}
                 </div>
                 <div className="py-6">
-                  <a
-                    href="#"
+                  <Link
+                    to="/login"
                     className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
                   >
                     Log in
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -184,12 +185,12 @@ export default function Example() {
                 >
                   Learn more
                 </a>
-                <a
-                  href="#"
+                <Link
+                  to="/login"
                   className="text-sm font-semibold leading-6 text-gray-900"
                 >
                   Log in <span aria-hidden="true">→</span>
-                </a>
+                </Link>
               </div>
             </div>
           </div>
