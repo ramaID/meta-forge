@@ -1,13 +1,23 @@
-import { ActionFunctionArgs } from '@remix-run/node'
+import { ActionFunctionArgs, MetaFunction, redirect } from '@remix-run/node'
 import { Form, useActionData } from '@remix-run/react'
-import { logoUrl } from '~/utils'
-import { validate } from './validate'
+import { appName, logoUrl } from '~/utils'
+import { loginAction } from './action'
+import { authCookie } from '~/services/auth'
+
+export const meta: MetaFunction = () => {
+  return [{ title: `Sign In - ${appName}` }]
+}
 
 export async function action({ request }: ActionFunctionArgs) {
-  let formData = await request.formData(),
-    email = String(formData.get('email')),
-    password = String(formData.get('password')),
-    errors = validate(email, password)
+  let { errors, userData } = await loginAction(request)
+
+  if (!errors) {
+    return redirect('/admin', {
+      headers: {
+        'Set-Cookie': await authCookie.serialize(userData),
+      },
+    })
+  }
 
   return { errors }
 }
@@ -36,7 +46,7 @@ export default function Login() {
                   className="block text-sm font-medium leading-6 text-gray-900"
                 >
                   Email address{' '}
-                  {emailError && (
+                  {emailError && !Array.isArray(emailError) && (
                     <span className="text-red-500 font-semibold">
                       {emailError}
                     </span>
@@ -52,6 +62,13 @@ export default function Login() {
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
                 </div>
+                {Array.isArray(emailError) && (
+                  <ol className="mt-2 ml-4 text-sm text-red-500 list-decimal">
+                    {emailError.map((error, i) => (
+                      <li key={`error-email-${i}`}>{error}</li>
+                    ))}
+                  </ol>
+                )}
               </div>
 
               <div>
@@ -60,7 +77,7 @@ export default function Login() {
                   className="block text-sm font-medium leading-6 text-gray-900"
                 >
                   Password{' '}
-                  {passwordError && (
+                  {passwordError && !Array.isArray(passwordError) && (
                     <span className="text-red-500 font-semibold">
                       {passwordError}
                     </span>
@@ -76,6 +93,13 @@ export default function Login() {
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
                 </div>
+                {Array.isArray(passwordError) && (
+                  <ol className="mt-2 ml-4 text-sm text-red-500 list-decimal">
+                    {passwordError.map((error, i) => (
+                      <li key={`error-email-${i}`}>{error}</li>
+                    ))}
+                  </ol>
+                )}
               </div>
 
               <div className="flex items-center justify-between">
