@@ -3,7 +3,6 @@ services:
   base:
     image: node:20
     volumes:
-      - nodemodules:/usr/src/service/node_modules
       - ./frontend:/usr/src/service
     working_dir: /usr/src/service
   install:
@@ -12,12 +11,5 @@ services:
     command: npm i
   build:
     extends:
-      service: base
+      service: install
     command: npm run build
-  create-bundles:
-    extends:
-      service: base
-    command: npm run create-bundles
-volumes:
-  nodemodules:
-    external: true

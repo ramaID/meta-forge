@@ -3,7 +3,6 @@ services:
   frontend:
     image: node:20
     volumes:
-      - nodemodules:/usr/src/service/node_modules
       - ./frontend:/usr/src/service
     working_dir: /usr/src/service
     command: bash -c "npm install && npm run dev"
@@ -51,6 +50,3 @@ services:
 networks:
   meta-forge:
     driver: bridge
-volumes:
-  nodemodules:
-    external: true
