@@ -14,6 +14,8 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
       - BE_URL=http://backend:${FORWARD_BE_PORT:-8000}
+    depends_on:
+      - backend
   backend:
     image: ramageek/php:beta-8.1-sprint
     volumes:
