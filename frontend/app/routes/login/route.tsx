@@ -1,28 +1,15 @@
 import { ActionFunctionArgs } from '@remix-run/node'
 import { Form, useActionData } from '@remix-run/react'
 import { logoUrl } from '~/utils'
+import { validate } from './validate'
 
 export async function action({ request }: ActionFunctionArgs) {
   let formData = await request.formData(),
     email = String(formData.get('email')),
     password = String(formData.get('password')),
-    errors: { email?: string; password?: string } = {}
+    errors = validate(email, password)
 
-  if (!email) {
-    errors.email = 'is required'
-  } else if (!email.includes('@')) {
-    errors.email = 'is not a valid email'
-  }
-
-  if (!password) {
-    errors.password = 'is required'
-  } else if (password.length < 5) {
-    errors.password = 'must be at least 5 characters'
-  }
-
-  return {
-    errors: Object.keys(errors).length ? errors : null,
-  }
+  return { errors }
 }
 
 export default function Login() {
