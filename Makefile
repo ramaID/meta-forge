@@ -4,7 +4,7 @@ install:
 build:
 	docker compose -f docker-compose.builder.yml run --rm build
 dev:
-	docker compose up -d
+	docker compose up
 stop:
 	docker compose stop
 down:
