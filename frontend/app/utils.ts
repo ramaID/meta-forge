@@ -5,3 +5,5 @@ export function classNames(...classes: (string | boolean | undefined)[]) {
 }
 
 export const logoUrl = logoAssetUrl
+
+export const appName = 'Meta Forge'
