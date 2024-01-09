@@ -63,14 +63,14 @@ export default async function laraFetch<T>(
     body,
   })
 
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`)
+  if ([500, 502, 503, 504, 505].includes(response.status)) {
+    throw new Error(`Laravel server error! Status: ${response.statusText}`)
   }
 
   return response as T
 }
 
-export async function laraReq<T, K>(
+export async function laraReq<T, K = any>(
   fetchable: Promise<T>,
   onSuccess?: (param?: Response) => K,
   onUnauthorized?: (param?: Response) => K
