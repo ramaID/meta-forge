@@ -43,8 +43,17 @@ export async function loginAction(request: Request) {
     await authCookie.serialize({ Cookie, [CSRF_HEADER]: token })
   )
 
+  type userData = {
+    id: number
+    name: string
+    email: string
+    email_verified_at: string | null
+    created_at: string
+    updated_at: string
+  }
+
   // request to laravel to get user data
-  let { data } = await laraReq(
+  let response = await laraReq<userData>(
     laraFetch('/api/user', { method: 'get' }, request)
   )
 
@@ -53,14 +62,7 @@ export async function loginAction(request: Request) {
     userData: {
       Cookie,
       [CSRF_HEADER]: token,
-      user: data as {
-        id: number
-        name: string
-        email: string
-        email_verified_at: string | null
-        created_at: string
-        updated_at: string
-      },
+      user: response.data,
     },
   }
 }
