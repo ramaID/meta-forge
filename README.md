@@ -14,7 +14,6 @@
   - [Installation](#installation)
     - [Requirements](#requirements)
     - [Steps](#steps)
-  - [Usage](#usage)
   - [Contributing](#contributing)
   - [License](#license)
 
@@ -31,10 +30,6 @@
 2. Install dependencies with `make install`
 3. Start the development server with `make dev`
 4. Start coding!
-
-## Usage
-
-Provide examples and instructions on how to use your project. Include any relevant code snippets or screenshots to help users understand how to interact with your project.
 
 ## Contributing
 
