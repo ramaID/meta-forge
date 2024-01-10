@@ -70,7 +70,7 @@ export default async function laraFetch<T>(
   return response as T
 }
 
-export async function laraReq<T, K = any>(
+export async function laraReq<T, K = Response>(
   fetchable: Promise<T>,
   onSuccess?: (param?: Response) => K,
   onUnauthorized?: (param?: Response) => K
