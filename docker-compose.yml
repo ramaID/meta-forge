@@ -11,6 +11,7 @@ services:
       - '${FORWARD_WS_PORT:-3001}:3001'
     labels:
       - dev.orbstack.http-port=3000
+      - dev.orbstack.domains=meta-forge.orb.local
     networks:
       - meta-forge
     environment:
