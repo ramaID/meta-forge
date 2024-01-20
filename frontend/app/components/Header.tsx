@@ -33,23 +33,18 @@ export default function Header() {
           ))}
         </nav>
         <div className="flex flex-1 items-center justify-end gap-x-8">
-          {/* <button
-              type="button"
-              className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500"
+          <form method="post" action="/logout">
+            <button
+              type="submit"
+              className="-m-1.5 p-1.5 text-gray-400 hover:text-gray-500"
             >
-              <span className="sr-only">View notifications</span>
-              <BellIcon className="size-6" aria-hidden="true" />
-            </button> */}
-          <button
-            type="button"
-            className="-m-1.5 p-1.5 text-gray-400 hover:text-gray-500"
-          >
-            <span className="sr-only">Logout</span>
-            <ArrowRightEndOnRectangleIcon
-              className="size-6"
-              aria-hidden="true"
-            />
-          </button>
+              <span className="sr-only">Logout</span>
+              <ArrowRightEndOnRectangleIcon
+                className="size-6"
+                aria-hidden="true"
+              />
+            </button>
+          </form>
         </div>
       </div>
       <Dialog
